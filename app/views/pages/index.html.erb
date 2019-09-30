@@ -1,0 +1,25 @@
+<% @products.each do |product| %>
+	<h1><%= product.title %></h1>
+	<p><%= product.body_html %></p>
+	<p>Sold by : <strong><%= product.vendor %></strong></p>
+	<% product.images.each do |image| %>
+		<img src="<%= image.src %>" alt="">
+	<% end %>
+<% end %>
+
+<br>
+
+<input type="button" name="answer" value="Livraison à vélo" id="btn">
+
+<div id="bikeForm" style="display:none;">
+    <div class="bikeDeliveryForm">
+      <label for="postcode">Enter your postcode : </label>
+      <input type="text" name="address" id="address" required>
+    </div>
+    <div class="bikeDeliveryForm">
+      <input type="submit" value="Validate!">
+    </div>
+</div>
+
+
+<% console %>

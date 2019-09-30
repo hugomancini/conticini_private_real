@@ -1,0 +1,8 @@
+<h1><%= ShopifyAPI::Product.first.title %></h1>
+
+<p><%= ShopifyAPI::Product.first.body_html %><p>
+
+<p>Sold by : <strong><%= ShopifyAPI::Product.first.vendor %></strong></p>
+
+
+<img src="<%= ShopifyAPI::Product.first.images.first.src %>" alt="">
