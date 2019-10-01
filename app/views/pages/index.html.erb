@@ -2,9 +2,6 @@
 	<h1><%= product.title %></h1>
 	<p><%= product.body_html %></p>
 	<p>Sold by : <strong><%= product.vendor %></strong></p>
-	<% product.images.each do |image| %>
-		<img src="<%= image.src %>" alt="">
-	<% end %>
 <% end %>
 
 <br>
@@ -16,7 +13,13 @@
       <label for="postcode">Enter your postcode : </label>
       <input type="text" name="address" id="address" required>
     </div>
-    <div class="bikeDeliveryForm">
-      <input type="submit" value="Validate!">
+    <div class="bikeDeliverySubmit">
+      <a href="">Validate</a>
     </div>
 </div>
+
+<h1>The answer is : <%= @answer %></h1>
+<h2>Time Slots</h2>
+<p><%= @jsonDeliverySlots %></p>
+
+<%= console %>

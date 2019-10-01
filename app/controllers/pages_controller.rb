@@ -1,5 +1,6 @@
 require 'uri'
 require 'net/http'
+require 'json'
 
 class PagesController < ApplicationController
 	before_action :connectApi
@@ -12,25 +13,44 @@ class PagesController < ApplicationController
 	end
 
   def deliveryValid
-    puts "hey yoooo"
+    #getting info on wether the area is inside delivery area
+    uri = URI.parse("https://sandbox.urb-it.com/v2/postalcodes/#{params[:postcode]}")
+    request = Net::HTTP::Get.new(uri)
+    request["X-Api-Key"] = "92012419-d73a-42f5-a12c-cdcc20740de3"
+    req_options = {
+      use_ssl: uri.scheme == "https",
+    }
+    response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+      http.request(request)
+    end
+     response.code
+     answer = response.body
+     jsonAnswer = JSON.parse(answer)
+     @answer = jsonAnswer["inside_delivery_area"]
+     puts @answer
+     # if it is, then we get the hash of all delivery slots available
+      if @answer != "no"
+       puts "ALL GOOD INSIDE THE BOUCLE BB"
+       uri = URI.parse("https://sandbox.urb-it.com/v2/slots")
+       request = Net::HTTP::Get.new(uri)
+       request["X-Api-Key"] = "92012419-d73a-42f5-a12c-cdcc20740de3"
 
-    url = URI("https://sandbox.urb-it.com/v2/postalcodes/#{data[:postcode]}")
+       req_options = {
+         use_ssl: uri.scheme == "https",
+       }
 
-    http = Net::HTTP.new(url.host, url.port)
-
-    request = Net::HTTP::Get.new(url)
-    request["X-API-KEY"] = '92012419-d73a-42f5-a12c-cdcc20740de3'
-    request["User-Agent"] = 'PostmanRuntime/7.17.1'
-    request["Accept"] = '*/*'
-    request["Cache-Control"] = 'no-cache'
-    request["Postman-Token"] = '02ed350e-6833-4216-9c7a-dd1a1c27fe13,adf1a8d2-835a-43f9-ad72-0c4dc896fa9c'
-    request["Host"] = 'sandbox.urb-it.com'
-    request["Accept-Encoding"] = 'gzip, deflate'
-    request["Connection"] = 'keep-alive'
-    request["cache-control"] = 'no-cache'
-
-    response = http.request(request)
-    puts response.read_body
+       response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+         http.request(request)
+       end
+       response.code
+       deliverySlots = response.body
+       jsonDeliverySlots = JSON.parse(deliverySlots)
+       render json: {slots: jsonDeliverySlots}
+      else
+    # if not, then we put an error message
+       puts "Does #{params[:postcode]} can be delivered ? Answer is : #{@answer}"
+       render json: {answer: @answer}
+      end
   end
 
 	private
