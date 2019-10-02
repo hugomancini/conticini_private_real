@@ -8,7 +8,7 @@ require("turbolinks").start()
 require("@rails/activestorage").start()
 require("channels")
 require("jquery")
-
+//= require datetimepicker
 
 $(document).ready(function() {
     console.log("DOC READY")
@@ -20,18 +20,43 @@ $(document).ready(function() {
     })
 })
 
+var pickDateTime = function () {
+  console.log("inside pickDateTime")
+    $('#bikeForm').hide();
+    $("#deliverySlots").show();
+}
+
+var invalidArea = function () {
+  console.log("inside invalidArea")
+    $('#bikeForm').hide();
+    $("#invalidArea").show();
+}
+
+
+var displaySlots = function (data) {
+    $('#dateTime').append("<p></p>")
+}
+
+
  var sendAddress = function() {
   console.log($("#address").val())
   $.ajax({
       type: "POST",
       url: "/deliveryValid",
       data:  {postcode: $("#address").val()},
-      success: function(data) {console.log(data)},
+      success: function(data) {
+        if (data["answer"] != "no") {
+          console.log(data)
+          pickDateTime()
+          displaySlots()
+        } else {
+          invalidArea()
+        };
+        },
       error : function(resultat, statut, erreur){console.log("erreur POST LALALLALALs")},
       dataType: 'json'
   });
 }
-
 
 
 // Uncomment to copy all static images under ../images to the output folder and reference

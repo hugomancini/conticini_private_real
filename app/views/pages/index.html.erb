@@ -18,8 +18,16 @@
     </div>
 </div>
 
-<h1>The answer is : <%= @answer %></h1>
-<h2>Time Slots</h2>
-<p><%= @jsonDeliverySlots %></p>
+<div id="invalidArea" style="display:none;">
+  <div ><p>Sorry, you cannot be delivered in this area</p></div>
+</div>
 
-<%= console %>
+<div id="deliverySlots" style="display:none;">
+  <div ><p>Please choose one of the following delivery slots : </p></div>
+</div>
+
+<div id="dateTime">
+  <h3>DateTimepicker</h3>
+  <p><input id="datetimepicker" type="date" value="2014/03/15 05:06" class="datetimepicker" /></p>
+</div>
+

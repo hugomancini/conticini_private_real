@@ -45,7 +45,19 @@ class PagesController < ApplicationController
        response.code
        deliverySlots = response.body
        jsonDeliverySlots = JSON.parse(deliverySlots)
-       render json: {slots: jsonDeliverySlots}
+       deliveryArray = jsonDeliverySlots["items"]
+       @deliveryHours = []
+       deliveryArray.each do |item|
+          @deliveryHour = item["delivery_time"]
+          @deliveryHourFinal = Date.parse(@deliveryHour).strftime("%a %b %e %Y %H:%M")
+          @deliveryHours << @deliveryHourFinal
+       end
+       puts @deliveryHours
+       puts @deliveryHours.class
+       puts @deliveryHours.size
+
+        puts Date.parse(@deliveryHours.first).strftime("%a %b %e %T %Y")
+       render json: {slots: @deliveryHours}
       else
     # if not, then we put an error message
        puts "Does #{params[:postcode]} can be delivered ? Answer is : #{@answer}"
@@ -54,6 +66,9 @@ class PagesController < ApplicationController
   end
 
 	private
+
+
+
 
 	def connectApi
 		shop_url = "https://6620956a37653def370f1cb21fb82e67:f47a2189cb3f4983d295d2867accaec2@hugo-mancini.myshopify.com"
