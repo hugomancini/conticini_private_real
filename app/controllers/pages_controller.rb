@@ -55,6 +55,7 @@ class PagesController < ApplicationController
        puts @deliveryHours
        puts @deliveryHours.class
        puts @deliveryHours.size
+       puts @deliveryHours.first.class
 
         puts Date.parse(@deliveryHours.first).strftime("%a %b %e %T %Y")
        render json: {slots: @deliveryHours}
@@ -65,8 +66,9 @@ class PagesController < ApplicationController
       end
   end
 
-	private
 
+
+	private
 
 
 
