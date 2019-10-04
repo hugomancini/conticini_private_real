@@ -25,27 +25,30 @@ class PagesController < ApplicationController
       return @json
   end
 
-  def setDateTimeRecipient(checkoutId)
-    @json3 = {
-        "delivery_time" => "2018-01-28T19:43:00Z",
-        "message" => "Door code: 1234",
-        "recipient" => {
-          "first_name" => "Test",
-          "last_name" => "Testsson",
-          "address_1" => "Example street 52",
-          "address_2" => "",
-          "city" => "Paris",
-          "postcode" => "75000",
-          "phone_number" => "+331612345678",
-          "email" => "test@grr.la"
-        }
-      }
-    uri = URI.parse("https://sandbox.urb-it.com/v3/checkouts/#{checkoutId}/delivery")
-    request = Net::HTTP::Post.new(uri)
-    request.content_type = "application/json"
+  def deleteOrder(orderID)
+    uri = URI.parse("https://sandbox.urb-it.com/v3/checkouts/#{orderID}")
+    request = Net::HTTP::Delete.new(uri)
     request["Authorization"] = "Bearer <JWT Authorization Header>"
+    request["X-Api-Key"] = "<Urb-it API Key>"
+
+    req_options = {
+      use_ssl: uri.scheme == "https",
+    }
+
+    response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+      http.request(request)
+    end
+    response.code
+    answer = response.body
+    jsonAnswer = JSON.parse(answer)
+    end
+
+  def setDateTimeRecipient(checkoutId, json)
+    uri = URI.parse("https://sandbox.urb-it.com/v3/checkouts/#{checkoutId}/delivery")
+    request = Net::HTTP::Put.new(uri)
+    request["Authorization"] = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzMDE4NzAxNS02MjUxLTQ5NDYtOTJiZC04MDVkNDAxMGVkY2YiLCJpYXQiOjE1NjkzMTI0NzUsInJvbGVzIjpbInJldGFpbGVyIl0sInN1YiI6IjkyMDEyNDE5LWQ3M2EtNDJmNS1hMTJjLWNkY2MyMDc0MGRlMyIsImlzcyI6InVyYml0LmNvbSIsIm5hbWUiOiJHXHUwMGUydGVhdXggZCdcdTAwYzltb3Rpb25zIFBhcmlzIiwiZXhwIjoxODg0NjcyNDc1fQ.P3YVPLgkbjJxD-A5-4-e_Cvx3xDmFDJMJIHB7NS5cos"
     request["X-Api-Key"] = "92012419-d73a-42f5-a12c-cdcc20740de3"
-    request.body = @json3
+    request.body = json
     puts request.body
     req_options = {
       use_ssl: uri.scheme == "https",
@@ -56,19 +59,72 @@ class PagesController < ApplicationController
     response.code
     answer = response.body
     jsonAnswer = JSON.parse(answer)
-    puts "THIS IS THE API ANSWER : "
+    puts "THIS IS THE API ANSWER to SET DATE TIME RECIPIENT : "
     puts jsonAnswer
+    render json: {answer: jsonAnswer}
+
+  end
+
+  def checkout(checkoutId)
+    puts "INSIDE CHECKOUT with checkout ID = #{checkoutId}"
+    uri = URI.parse("https://sandbox.urb-it.com/v2/checkouts/#{checkoutId}")
+    request = Net::HTTP::Get.new(uri)
+    request["Authorization"] = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzMDE4NzAxNS02MjUxLTQ5NDYtOTJiZC04MDVkNDAxMGVkY2YiLCJpYXQiOjE1NjkzMTI0NzUsInJvbGVzIjpbInJldGFpbGVyIl0sInN1YiI6IjkyMDEyNDE5LWQ3M2EtNDJmNS1hMTJjLWNkY2MyMDc0MGRlMyIsImlzcyI6InVyYml0LmNvbSIsIm5hbWUiOiJHXHUwMGUydGVhdXggZCdcdTAwYzltb3Rpb25zIFBhcmlzIiwiZXhwIjoxODg0NjcyNDc1fQ.P3YVPLgkbjJxD-A5-4-e_Cvx3xDmFDJMJIHB7NS5cos"
+    request["X-Api-Key"] = "92012419-d73a-42f5-a12c-cdcc20740de3"
+
+    req_options = {
+      use_ssl: uri.scheme == "https",
+    }
+
+    response = Net::HTTP.start(uri.hostname, uri.port, req_options) do |http|
+      http.request(request)
+    end
+
+    response.code
+    answer = response.body
+    jsonAnswer = JSON.parse(answer)
+    puts "------------------------------------------------"
+    puts "THIS IS THE API ANSWER to checkout "
+    puts jsonAnswer
+    puts "Delivery TIme : "
+    puts jsonAnswer["delivery_time"]
+    puts "STATUS :"
+    puts jsonAnswer["status"]
+    puts "MESSAGE :"
+    puts jsonAnswer["message"]
+    puts "RECIPIENT :"
+    puts jsonAnswer["recipient"]
+
+    @checkoutHash = {
+      "delivery_time" => "2019-10-03T19:00:00Z",
+      "message" => "Door code: 1234",
+      "recipient" => {
+        "first_name" => "Test",
+        "last_name" => "Testsson",
+        "address_1" => "3 rue Jean Robert",
+        "address_2" => "",
+        "city" => "Paris",
+        "postcode" => "75018",
+        "phone_number" => "+331612345678",
+        "email" => "test@grr.la"
+      }
+    }
+    @checkoutJson = @checkoutHash.to_json
+    setDateTimeRecipient(checkoutId, @checkoutJson)
   end
 
   def initiateCheckOut(cartId)
-    @json2 = { "cart_reference" => @cartId }
-    uri = URI.parse("https://sandbox.urb-it.com/v3/checkouts")
+    puts "initiating checkout with #{cartId}"
+    @hash2 = { "cart_reference" => cartId }
+    @json2 = @hash2.to_json
+    puts "THIS IS THE JSON CART REFERENCE : "
+    puts @json2
+    uri = URI.parse("https://sandbox.urb-it.com/v3/checkouts/")
     request = Net::HTTP::Post.new(uri)
     request.content_type = "application/json"
-    request["Authorization"] = "Bearer <JWT Authorization Header>"
+    request["Authorization"] = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzMDE4NzAxNS02MjUxLTQ5NDYtOTJiZC04MDVkNDAxMGVkY2YiLCJpYXQiOjE1NjkzMTI0NzUsInJvbGVzIjpbInJldGFpbGVyIl0sInN1YiI6IjkyMDEyNDE5LWQ3M2EtNDJmNS1hMTJjLWNkY2MyMDc0MGRlMyIsImlzcyI6InVyYml0LmNvbSIsIm5hbWUiOiJHXHUwMGUydGVhdXggZCdcdTAwYzltb3Rpb25zIFBhcmlzIiwiZXhwIjoxODg0NjcyNDc1fQ.P3YVPLgkbjJxD-A5-4-e_Cvx3xDmFDJMJIHB7NS5cos"
     request["X-Api-Key"] = "92012419-d73a-42f5-a12c-cdcc20740de3"
     request.body = @json2
-    puts request.body
     req_options = {
       use_ssl: uri.scheme == "https",
     }
@@ -78,10 +134,14 @@ class PagesController < ApplicationController
     response.code
     answer = response.body
     jsonAnswer = JSON.parse(answer)
-    puts "THIS IS THE API ANSWER : "
+    puts "------------------------------------------------"
+    puts "THIS IS THE API ANSWER to initiateCheckOut : "
     puts jsonAnswer
-    @checkoutId = jsonAnswer["id"]
-    setDateTimeRecipient(@checkoutId)
+    puts jsonAnswer.class
+    @checkoutId =jsonAnswer["id"]
+    puts "THIS IS THE CHECKOUT ID :" + @checkoutId
+    checkout(@checkoutId)
+
   end
 
   def initiateCart
@@ -90,7 +150,7 @@ class PagesController < ApplicationController
     uri = URI.parse("https://sandbox.urb-it.com/v2/carts")
     request = Net::HTTP::Post.new(uri)
     request.content_type = "application/json"
-    request["Authorization"] = "Bearer <JWT Authorization Header>"
+    request["Authorization"] = "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzMDE4NzAxNS02MjUxLTQ5NDYtOTJiZC04MDVkNDAxMGVkY2YiLCJpYXQiOjE1NjkzMTI0NzUsInJvbGVzIjpbInJldGFpbGVyIl0sInN1YiI6IjkyMDEyNDE5LWQ3M2EtNDJmNS1hMTJjLWNkY2MyMDc0MGRlMyIsImlzcyI6InVyYml0LmNvbSIsIm5hbWUiOiJHXHUwMGUydGVhdXggZCdcdTAwYzltb3Rpb25zIFBhcmlzIiwiZXhwIjoxODg0NjcyNDc1fQ.P3YVPLgkbjJxD-A5-4-e_Cvx3xDmFDJMJIHB7NS5cos"
     request["X-Api-Key"] = "92012419-d73a-42f5-a12c-cdcc20740de3"
     request.body = @json
     puts request.body
@@ -103,9 +163,11 @@ class PagesController < ApplicationController
     response.code
     answer = response.body
     jsonAnswer = JSON.parse(answer)
-    puts "THIS IS THE API ANSWER : "
+    puts "------------------------------------------------"
+    puts "THIS IS THE API ANSWER to initiate CART: "
     puts jsonAnswer
-    @cartId = jsonAnswer["id"].to_s
+    @cartId = jsonAnswer["id"]
+    puts "Cart is is :" + @cartId
     initiateCheckOut(@cartId)
   end
 
@@ -157,8 +219,7 @@ class PagesController < ApplicationController
        puts "YEAYYYYYAYSYAYSYASYASYAYS"
 
         puts Date.parse(@deliveryHours.first).strftime("%a %b %e %T %Y")
-       render json: {slots: @deliveryHours}
-       initiateCart
+        initiateCart
       else
     # if not, then we put an error message
        puts "Does #{params[:postcode]} can be delivered ? Answer is : #{@answer}"
