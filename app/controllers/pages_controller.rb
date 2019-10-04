@@ -227,6 +227,11 @@ class PagesController < ApplicationController
       end
   end
 
+      def testJS
+        @answer = "Hey Yoooooooo I am in da JS biatch"
+        puts @answer
+        render json: {answer: @answer}
+      end
 
 
 

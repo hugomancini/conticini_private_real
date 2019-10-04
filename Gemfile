@@ -16,6 +16,9 @@ gem 'shopify_api'
 
 gem 'pry-byebug'
 
+gem 'rack-cors'
+
+
 
 # Transpile app-like JavaScript. Read more: https://github.com/rails/webpacker
 gem 'webpacker', '~> 4.0'
