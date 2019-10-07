@@ -2,6 +2,8 @@ require 'uri'
 require 'net/http'
 require 'json'
 
+# small changes
+
 class PagesController < ApplicationController
   before_action :connectApi
   skip_before_action :verify_authenticity_token
