@@ -38,18 +38,6 @@ var displaySlots = function (data) {
     $('#dateTime').append("<p></p>")
 }
 
-var testJS = function () {
-  console.log("testJS")
-  $.ajax({
-      type: "POST",
-      url: "/testJS",
-      data:  {data: "lolilo"},
-      success: function(data) {console.log("sucess")},
-      error : function(resultat, statut, erreur){console.log("erreur POST LALALLALALs")},
-      dataType: 'json'
-  });
-}
-
  var sendAddress = function() {
   console.log($("#address").val())
   $.ajax({
